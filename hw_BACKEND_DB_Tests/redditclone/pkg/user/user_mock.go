@@ -5,6 +5,7 @@
 package user
 
 import (
+	context "context"
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
@@ -34,46 +35,46 @@ func (m *MockUserRepo) EXPECT() *MockUserRepoMockRecorder {
 }
 
 // AddNewUser mocks base method.
-func (m *MockUserRepo) AddNewUser(user User) (string, error) {
+func (m *MockUserRepo) AddNewUser(ctx context.Context, user User) (string, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "AddNewUser", user)
+	ret := m.ctrl.Call(m, "AddNewUser", ctx, user)
 	ret0, _ := ret[0].(string)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // AddNewUser indicates an expected call of AddNewUser.
-func (mr *MockUserRepoMockRecorder) AddNewUser(user interface{}) *gomock.Call {
+func (mr *MockUserRepoMockRecorder) AddNewUser(ctx, user interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddNewUser", reflect.TypeOf((*MockUserRepo)(nil).AddNewUser), user)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddNewUser", reflect.TypeOf((*MockUserRepo)(nil).AddNewUser), ctx, user)
 }
 
 // Authenticate mocks base method.
-func (m *MockUserRepo) Authenticate(user User) (string, error) {
+func (m *MockUserRepo) Authenticate(ctx context.Context, user User) (string, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Authenticate", user)
+	ret := m.ctrl.Call(m, "Authenticate", ctx, user)
 	ret0, _ := ret[0].(string)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // Authenticate indicates an expected call of Authenticate.
-func (mr *MockUserRepoMockRecorder) Authenticate(user interface{}) *gomock.Call {
+func (mr *MockUserRepoMockRecorder) Authenticate(ctx, user interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Authenticate", reflect.TypeOf((*MockUserRepo)(nil).Authenticate), user)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Authenticate", reflect.TypeOf((*MockUserRepo)(nil).Authenticate), ctx, user)
 }
 
 // IsUser mocks base method.
-func (m *MockUserRepo) IsUser(username, id string) (bool, error) {
+func (m *MockUserRepo) IsUser(ctx context.Context, username, id string) (bool, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "IsUser", username, id)
+	ret := m.ctrl.Call(m, "IsUser", ctx, username, id)
 	ret0, _ := ret[0].(bool)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // IsUser indicates an expected call of IsUser.
-func (mr *MockUserRepoMockRecorder) IsUser(username, id interface{}) *gomock.Call {
+func (mr *MockUserRepoMockRecorder) IsUser(ctx, username, id interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IsUser", reflect.TypeOf((*MockUserRepo)(nil).IsUser), username, id)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IsUser", reflect.TypeOf((*MockUserRepo)(nil).IsUser), ctx, username, id)
 }

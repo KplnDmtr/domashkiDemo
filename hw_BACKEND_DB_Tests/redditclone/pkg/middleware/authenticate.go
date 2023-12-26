@@ -20,7 +20,7 @@ func Authenticate(contextKey key.Key, logger logger.Logger, uRepo user.UserRepo,
 			return
 		}
 
-		isUser, err := uRepo.IsUser(author.Username, author.ID)
+		isUser, err := uRepo.IsUser(r.Context(), author.Username, author.ID)
 		if err != nil {
 			response.ServerResponseWriter(w, 401, map[string]interface{}{"message": "db error"})
 			return

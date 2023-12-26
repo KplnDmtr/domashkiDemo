@@ -59,9 +59,9 @@ func JWT(contextKey key.Key, logger logger.Logger, sess session.SessionManager, 
 		author.ID = authorData["id"].(string)
 		author.Username = authorData["username"].(string)
 
-		timeExp := sess.GetExp(author.ID, iat)
+		timeExp := sess.GetExp(r.Context(), author.ID, iat)
 		if curTime >= timeExp {
-			err = sess.DeleteSess(author.ID, iat)
+			err = sess.DeleteSess(r.Context(), author.ID, iat)
 			if err != nil {
 				logger.Log("Error", err.Error())
 				response.ServerResponseWriter(w, 400, map[string]interface{}{"message": "db error"})

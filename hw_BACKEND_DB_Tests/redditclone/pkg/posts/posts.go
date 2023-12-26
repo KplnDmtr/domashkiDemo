@@ -1,6 +1,7 @@
 package posts
 
 import (
+	"context"
 	"time"
 
 	"redditclone/pkg/author"
@@ -27,15 +28,15 @@ type Post struct {
 
 //go:generate mockgen -source posts.go -destination posts_mock.go -package posts PostsRepository
 type PostsRepository interface {
-	GetAllPosts() ([]Post, error)
-	AddPost(Post) (Post, error)
-	UpdatePost(Post) error
-	GetPostByID(string) (Post, error)
-	GetCategory(string) ([]Post, error)
-	AddComment(string, comments.Comment) (Post, error)
-	DeleteComment(string, string) (Post, error)
-	DeletePost(string) error
-	GetByUserLogin(string) ([]Post, error)
-	Vote(string, vote.Vote) (Post, error)
-	UnVote(string, string) (Post, error)
+	GetAllPosts(ctx context.Context) ([]Post, error)
+	AddPost(ctx context.Context, post Post) (Post, error)
+	UpdatePost(ctx context.Context, post Post) error
+	GetPostByID(ctx context.Context, id string) (Post, error)
+	GetCategory(ctx context.Context, category string) ([]Post, error)
+	AddComment(ctx context.Context, postID string, comment comments.Comment) (Post, error)
+	DeleteComment(ctx context.Context, postID string, commentID string) (Post, error)
+	DeletePost(ctx context.Context, postID string) error
+	GetByUserLogin(ctx context.Context, login string) ([]Post, error)
+	Vote(ctx context.Context, postID string, vote vote.Vote) (Post, error)
+	UnVote(ctx context.Context, username string, postID string) (Post, error)
 }

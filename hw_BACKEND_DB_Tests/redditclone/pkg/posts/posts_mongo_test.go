@@ -1,6 +1,7 @@
 package posts
 
 import (
+	"context"
 	"testing"
 
 	"redditclone/pkg/comments"
@@ -51,37 +52,37 @@ func funcSwitcher(repo *PostsMongoRepo, funcName string, args ...interface{}) (i
 	var err error
 	switch funcName {
 	case "GetAllPosts":
-		ans, err = repo.GetAllPosts()
+		ans, err = repo.GetAllPosts(context.Background())
 		return ans, err
 	case "UpdatePost":
-		err = repo.UpdatePost(args[0].(Post))
+		err = repo.UpdatePost(context.Background(), args[0].(Post))
 		return ans, err
 	case "DeletePost":
-		err = repo.DeletePost(args[0].(string))
+		err = repo.DeletePost(context.Background(), args[0].(string))
 		return ans, err
 	case "AddPost":
-		ans, err = repo.AddPost(args[0].(Post))
+		ans, err = repo.AddPost(context.Background(), args[0].(Post))
 		return ans, err
 	case "GetCategory":
-		ans, err = repo.GetCategory(args[0].(string))
+		ans, err = repo.GetCategory(context.Background(), args[0].(string))
 		return ans, err
 	case "GetPostByID":
-		ans, err = repo.GetPostByID(args[0].(string))
+		ans, err = repo.GetPostByID(context.Background(), args[0].(string))
 		return ans, err
 	case "AddComment":
-		ans, err = repo.AddComment(args[0].(string), args[1].(comments.Comment))
+		ans, err = repo.AddComment(context.Background(), args[0].(string), args[1].(comments.Comment))
 		return ans, err
 	case "DeleteComment":
-		ans, err = repo.DeleteComment(args[0].(string), args[1].(string))
+		ans, err = repo.DeleteComment(context.Background(), args[0].(string), args[1].(string))
 		return ans, err
 	case "GetByUserLogin":
-		ans, err = repo.GetByUserLogin(args[0].(string))
+		ans, err = repo.GetByUserLogin(context.Background(), args[0].(string))
 		return ans, err
 	case "Vote":
-		ans, err = repo.Vote(args[0].(string), args[1].(vote.Vote))
+		ans, err = repo.Vote(context.Background(), args[0].(string), args[1].(vote.Vote))
 		return ans, err
 	case "UnVote":
-		ans, err = repo.UnVote(args[0].(string), args[1].(string))
+		ans, err = repo.UnVote(context.Background(), args[0].(string), args[1].(string))
 		return ans, err
 	}
 

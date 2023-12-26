@@ -29,7 +29,7 @@ type PostsHandler struct {
 var dbError string = "DB error"
 
 func (p *PostsHandler) All(w http.ResponseWriter, r *http.Request) {
-	posts, err := p.PostsRepo.GetAllPosts()
+	posts, err := p.PostsRepo.GetAllPosts(r.Context())
 	if err != nil {
 		p.Logger.Log("Error", err.Error())
 		response.ServerResponseWriter(w, 500, map[string]interface{}{"message": dbError})
@@ -69,7 +69,7 @@ func (p *PostsHandler) NewPost(w http.ResponseWriter, r *http.Request) {
 		Vote: 1,
 	}}
 
-	post, err = p.PostsRepo.AddPost(post)
+	post, err = p.PostsRepo.AddPost(r.Context(), post)
 	if err != nil {
 		p.Logger.Log("Error", err.Error())
 		response.ServerResponseWriter(w, 500, map[string]interface{}{"message": dbError})
@@ -87,7 +87,7 @@ func (p *PostsHandler) GetPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	post, err := p.PostsRepo.GetPostByID(id)
+	post, err := p.PostsRepo.GetPostByID(r.Context(), id)
 	if err != nil {
 		p.Logger.Log("Error", err.Error())
 		response.ServerResponseWriter(w, 500, map[string]interface{}{"message": dbError})
@@ -96,7 +96,7 @@ func (p *PostsHandler) GetPost(w http.ResponseWriter, r *http.Request) {
 
 	post.Views += 1
 
-	err = p.PostsRepo.UpdatePost(post)
+	err = p.PostsRepo.UpdatePost(r.Context(), post)
 	if err != nil {
 		p.Logger.Log("Error", err.Error())
 		response.ServerResponseWriter(w, 500, map[string]interface{}{"message": dbError})
@@ -114,7 +114,7 @@ func (p *PostsHandler) GetPostsByCategory(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	posts, err := p.PostsRepo.GetCategory(category)
+	posts, err := p.PostsRepo.GetCategory(r.Context(), category)
 	if err != nil {
 		p.Logger.Log("Error", err.Error())
 		response.ServerResponseWriter(w, 500, map[string]interface{}{"message": dbError})
@@ -157,7 +157,7 @@ func (p *PostsHandler) AddComment(w http.ResponseWriter, r *http.Request) {
 		Body:    simple.Comment,
 	}
 
-	post, err := p.PostsRepo.AddComment(id, newComm)
+	post, err := p.PostsRepo.AddComment(r.Context(), id, newComm)
 	if err != nil {
 		p.Logger.Log("Error", err.Error())
 		response.ServerResponseWriter(w, 500, map[string]interface{}{"message": dbError})
@@ -175,7 +175,7 @@ func (p *PostsHandler) DeleteComment(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(400)
 		return
 	}
-	post, err := p.PostsRepo.DeleteComment(postID, commID)
+	post, err := p.PostsRepo.DeleteComment(r.Context(), postID, commID)
 	if err != nil {
 		p.Logger.Log("Error", err.Error())
 		response.ServerResponseWriter(w, 500, map[string]interface{}{"message": dbError})
@@ -191,7 +191,7 @@ func (p *PostsHandler) DeletePost(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(400)
 		return
 	}
-	err := p.PostsRepo.DeletePost(postID)
+	err := p.PostsRepo.DeletePost(r.Context(), postID)
 	if err != nil {
 		p.Logger.Log("Error", err.Error())
 		response.ServerResponseWriter(w, 500, map[string]interface{}{"message": dbError})
@@ -226,7 +226,7 @@ func (p *PostsHandler) Vote(w http.ResponseWriter, r *http.Request) {
 		newVote.Vote = -1
 	}
 
-	post, err := p.PostsRepo.Vote(id, newVote)
+	post, err := p.PostsRepo.Vote(r.Context(), id, newVote)
 	if err != nil {
 		p.Logger.Log("Error", err.Error())
 		response.ServerResponseWriter(w, 500, map[string]interface{}{"message": dbError})
@@ -250,7 +250,7 @@ func (p *PostsHandler) UnVote(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	post, err := p.PostsRepo.UnVote(author.ID, id)
+	post, err := p.PostsRepo.UnVote(r.Context(), author.ID, id)
 	if err != nil {
 		p.Logger.Log("Error", err.Error())
 		response.ServerResponseWriter(w, 500, map[string]interface{}{"message": dbError})

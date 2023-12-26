@@ -1,6 +1,7 @@
 package session
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	"os"
@@ -25,8 +26,8 @@ func NewSessionSQLRepo(db *sql.DB) *SessionSQL {
 	}
 }
 
-func (s *SessionSQL) GetExp(id string, iat int64) int64 {
-	row := s.Sessions.QueryRow("SELECT expiration FROM sessions WHERE userid = ? AND iat = ?",
+func (s *SessionSQL) GetExp(ctx context.Context, id string, iat int64) int64 {
+	row := s.Sessions.QueryRowContext(ctx, "SELECT expiration FROM sessions WHERE userid = ? AND iat = ?",
 		id,
 		iat,
 	)
@@ -38,8 +39,8 @@ func (s *SessionSQL) GetExp(id string, iat int64) int64 {
 	return exp
 }
 
-func (s *SessionSQL) AddNewSess(id string, exp int64, iat int64) error {
-	_, err := s.Sessions.Exec(
+func (s *SessionSQL) AddNewSess(ctx context.Context, id string, exp int64, iat int64) error {
+	_, err := s.Sessions.ExecContext(ctx,
 		"INSERT INTO sessions (`userid`, `expiration`,`iat`) VALUES (?, ?, ?)",
 		id,
 		exp,
@@ -68,8 +69,8 @@ func (s *SessionSQL) DownloadKey() error {
 	return nil
 }
 
-func (s *SessionSQL) DeleteSess(userID string, iat int64) error {
-	_, err := s.Sessions.Exec(
+func (s *SessionSQL) DeleteSess(ctx context.Context, userID string, iat int64) error {
+	_, err := s.Sessions.ExecContext(ctx,
 		"DELETE FROM sessions WHERE userid = ? AND iat = ?",
 		userID,
 		iat,

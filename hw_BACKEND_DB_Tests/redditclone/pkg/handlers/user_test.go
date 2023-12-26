@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
@@ -83,7 +84,7 @@ func TestGetUserPosts(t *testing.T) {
 	test.Req = mux.SetURLVars(test.Req, map[string]string{"USER_LOGIN": "abc"})
 	test.W = httptest.NewRecorder()
 	test.ExpectedStatus = 500
-	postsRepo.EXPECT().GetByUserLogin("abc").Return(nil, fmt.Errorf("some error"))
+	postsRepo.EXPECT().GetByUserLogin(test.Req.Context(), "abc").Return(nil, fmt.Errorf("some error"))
 	handlerstestsutils.StatusTesting(test, funcSwitcherUser)
 
 	// OK
@@ -92,7 +93,7 @@ func TestGetUserPosts(t *testing.T) {
 	test.Req = mux.SetURLVars(test.Req, map[string]string{"USER_LOGIN": "abc"})
 	test.W = httptest.NewRecorder()
 	test.ExpectedStatus = 200
-	postsRepo.EXPECT().GetByUserLogin("abc").Return(postsResult, nil).MaxTimes(2)
+	postsRepo.EXPECT().GetByUserLogin(test.Req.Context(), "abc").Return(postsResult, nil).MaxTimes(2)
 	test.Expected = handlerstestsutils.ConvertToJSON(t, postsResult)
 	handlerstestsutils.BodyTesting(test, funcSwitcherUser)
 	handlerstestsutils.StatusTesting(test, funcSwitcherUser)
@@ -133,24 +134,24 @@ func TestSignIn(t *testing.T) {
 	requestBody = bytes.NewBuffer(validJSON)
 	test.Req = httptest.NewRequest("GET", "/api/user/register", requestBody)
 	test.W = httptest.NewRecorder()
-	users.EXPECT().AddNewUser(user).Return("", fmt.Errorf("db error"))
+	users.EXPECT().AddNewUser(test.Req.Context(), user).Return("", fmt.Errorf("db error"))
 	handlerstestsutils.StatusTesting(test, funcSwitcherUser)
 
 	// AddNewSess error
 	requestBody = bytes.NewBuffer(validJSON)
 	test.Req = httptest.NewRequest("GET", "/api/user/register", requestBody)
 	test.W = httptest.NewRecorder()
-	users.EXPECT().AddNewUser(user).Return("1", nil)
-	session.EXPECT().AddNewSess("1", gomock.Any(), gomock.Any()).Return(fmt.Errorf("something gone wrong"))
+	users.EXPECT().AddNewUser(test.Req.Context(), user).Return("1", nil)
+	session.EXPECT().AddNewSess(test.Req.Context(), "1", gomock.Any(), gomock.Any()).Return(fmt.Errorf("something gone wrong"))
 	handlerstestsutils.StatusTesting(test, funcSwitcherUser)
 
 	// signed string error
 	requestBody = bytes.NewBuffer(validJSON)
 	test.Req = httptest.NewRequest("GET", "/api/user/register", requestBody)
 	test.W = httptest.NewRecorder()
-	users.EXPECT().AddNewUser(user).Return("1", nil)
-	session.EXPECT().GetExp("1", gomock.Any()).Return(time.Now().Add(120 * time.Hour).Unix())
-	session.EXPECT().AddNewSess("1", gomock.Any(), gomock.Any()).Return(nil)
+	users.EXPECT().AddNewUser(context.Background(), user).Return("1", nil)
+	session.EXPECT().GetExp(test.Req.Context(), "1", gomock.Any()).Return(time.Now().Add(120 * time.Hour).Unix())
+	session.EXPECT().AddNewSess(test.Req.Context(), "1", gomock.Any(), gomock.Any()).Return(nil)
 	session.EXPECT().GetKey().Return(1)
 	handlerstestsutils.StatusTesting(test, funcSwitcherUser)
 
@@ -158,10 +159,10 @@ func TestSignIn(t *testing.T) {
 	requestBody = bytes.NewBuffer(validJSON)
 	test.Req = httptest.NewRequest("GET", "/api/user/register", requestBody)
 	test.W = httptest.NewRecorder()
-	users.EXPECT().AddNewUser(user).Return("1", nil)
+	users.EXPECT().AddNewUser(test.Req.Context(), user).Return("1", nil)
 	session.EXPECT().GetKey().Return([]byte("babuka"))
-	session.EXPECT().AddNewSess("1", gomock.Any(), gomock.Any()).Return(nil)
-	session.EXPECT().GetExp("1", gomock.Any()).Return(time.Now().Add(120 * time.Hour).Unix())
+	session.EXPECT().AddNewSess(test.Req.Context(), "1", gomock.Any(), gomock.Any()).Return(nil)
+	session.EXPECT().GetExp(test.Req.Context(), "1", gomock.Any()).Return(time.Now().Add(120 * time.Hour).Unix())
 	test.ExpectedStatus = 201
 	handlerstestsutils.StatusTesting(test, funcSwitcherUser)
 
@@ -204,24 +205,24 @@ func TestLogIn(t *testing.T) {
 	requestBody = bytes.NewBuffer(userData)
 	test.Req = httptest.NewRequest("GET", "/api/user/login", requestBody)
 	test.W = httptest.NewRecorder()
-	users.EXPECT().Authenticate(user).Return("\"", fmt.Errorf("db error"))
+	users.EXPECT().Authenticate(test.Req.Context(), user).Return("\"", fmt.Errorf("db error"))
 	handlerstestsutils.StatusTesting(test, funcSwitcherUser)
 
 	// AddNewSess error
 	requestBody = bytes.NewBuffer(userData)
 	test.Req = httptest.NewRequest("GET", "/api/user/login", requestBody)
 	test.W = httptest.NewRecorder()
-	users.EXPECT().Authenticate(user).Return("1", nil)
-	session.EXPECT().AddNewSess("1", gomock.Any(), gomock.Any()).Return(fmt.Errorf("something gone wrong"))
+	users.EXPECT().Authenticate(test.Req.Context(), user).Return("1", nil)
+	session.EXPECT().AddNewSess(test.Req.Context(), "1", gomock.Any(), gomock.Any()).Return(fmt.Errorf("something gone wrong"))
 	handlerstestsutils.StatusTesting(test, funcSwitcherUser)
 
 	// signed string error
 	requestBody = bytes.NewBuffer(userData)
 	test.Req = httptest.NewRequest("GET", "/api/user/login", requestBody)
 	test.W = httptest.NewRecorder()
-	users.EXPECT().Authenticate(user).Return("1", nil)
-	session.EXPECT().AddNewSess("1", gomock.Any(), gomock.Any()).Return(nil)
-	session.EXPECT().GetExp("1", gomock.Any()).Return(time.Now().Add(120 * time.Hour).Unix())
+	users.EXPECT().Authenticate(context.Background(), user).Return("1", nil)
+	session.EXPECT().AddNewSess(test.Req.Context(), "1", gomock.Any(), gomock.Any()).Return(nil)
+	session.EXPECT().GetExp(test.Req.Context(), "1", gomock.Any()).Return(time.Now().Add(120 * time.Hour).Unix())
 	session.EXPECT().GetKey().Return(1)
 	handlerstestsutils.StatusTesting(test, funcSwitcherUser)
 
@@ -229,9 +230,9 @@ func TestLogIn(t *testing.T) {
 	requestBody = bytes.NewBuffer(userData)
 	test.Req = httptest.NewRequest("GET", "/api/user/login", requestBody)
 	test.W = httptest.NewRecorder()
-	users.EXPECT().Authenticate(user).Return("1", nil)
-	session.EXPECT().AddNewSess("1", gomock.Any(), gomock.Any()).Return(nil)
-	session.EXPECT().GetExp("1", gomock.Any()).Return(time.Now().Add(120 * time.Hour).Unix())
+	users.EXPECT().Authenticate(test.Req.Context(), user).Return("1", nil)
+	session.EXPECT().AddNewSess(test.Req.Context(), "1", gomock.Any(), gomock.Any()).Return(nil)
+	session.EXPECT().GetExp(test.Req.Context(), "1", gomock.Any()).Return(time.Now().Add(120 * time.Hour).Unix())
 	session.EXPECT().GetKey().Return([]byte("babuka"))
 	test.ExpectedStatus = 201
 	handlerstestsutils.StatusTesting(test, funcSwitcherUser)

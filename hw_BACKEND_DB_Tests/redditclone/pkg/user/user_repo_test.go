@@ -1,6 +1,7 @@
 package user
 
 import (
+	"context"
 	"fmt"
 	"testing"
 
@@ -35,7 +36,7 @@ func TestAddNewUser(t *testing.T) {
 		WithArgs(username, login, paswword).
 		WillReturnResult(sqlmock.NewResult(1, 1))
 
-	id, err := repo.AddNewUser(user)
+	id, err := repo.AddNewUser(context.Background(), user)
 	if err != nil {
 		t.Errorf("unexpected err: %s", err)
 		return
@@ -55,7 +56,7 @@ func TestAddNewUser(t *testing.T) {
 		WithArgs(username, login, paswword).
 		WillReturnError(fmt.Errorf("db error"))
 
-	_, err = repo.AddNewUser(user)
+	_, err = repo.AddNewUser(context.Background(), user)
 	if err == nil {
 		t.Errorf("expected error, got nil")
 		return
@@ -69,7 +70,7 @@ func TestAddNewUser(t *testing.T) {
 		ExpectExec("INSERT INTO users").
 		WithArgs(username, login, paswword).
 		WillReturnResult(sqlmock.NewErrorResult(fmt.Errorf("something wrong")))
-	_, err = repo.AddNewUser(user)
+	_, err = repo.AddNewUser(context.Background(), user)
 	if err == nil {
 		t.Errorf("expected error, got nil")
 		return
@@ -105,7 +106,7 @@ func TestAuthenticate(t *testing.T) {
 		ExpectQuery("SELECT id FROM users WHERE").
 		WithArgs(username, user.Password, login).
 		WillReturnRows(rows)
-	_, err = repo.Authenticate(user)
+	_, err = repo.Authenticate(context.Background(), user)
 	if err == nil {
 		t.Errorf("expected error, got nil")
 		return
@@ -120,7 +121,7 @@ func TestAuthenticate(t *testing.T) {
 		ExpectQuery("SELECT id FROM users WHERE").
 		WithArgs(username, user.Password, login).
 		WillReturnRows(rows)
-	res, err := repo.Authenticate(user)
+	res, err := repo.Authenticate(context.Background(), user)
 	if err != nil {
 		t.Errorf("unexpected err: %s", err)
 		return
@@ -153,7 +154,7 @@ func TestIsUser(t *testing.T) {
 		ExpectQuery("SELECT login FROM users WHERE").
 		WithArgs(username, id).
 		WillReturnRows(rows)
-	_, err = repo.IsUser(username, id)
+	_, err = repo.IsUser(context.Background(), username, id)
 	if err == nil {
 		t.Errorf("expected error, got nil")
 		return
@@ -168,7 +169,7 @@ func TestIsUser(t *testing.T) {
 		ExpectQuery("SELECT login FROM users WHERE").
 		WithArgs(username, id).
 		WillReturnRows(rows)
-	res, err := repo.IsUser(username, id)
+	res, err := repo.IsUser(context.Background(), username, id)
 	if err != nil {
 		t.Errorf("unexpected err: %s", err)
 		return

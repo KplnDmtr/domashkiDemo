@@ -25,22 +25,22 @@ func NewPostsMongoRepo(collection *mongo.Collection) *PostsMongoRepo {
 	return repo
 }
 
-func (p *PostsMongoRepo) GetAllPosts() ([]Post, error) {
+func (p *PostsMongoRepo) GetAllPosts(ctx context.Context) ([]Post, error) {
 	posts := make([]Post, 0)
 
-	c, err := p.Posts.Find(context.TODO(), bson.M{})
+	c, err := p.Posts.Find(ctx, bson.M{})
 	if err != nil {
 		return posts, fmt.Errorf("error in getallposts:%s", err.Error())
 	}
-	defer c.Close(context.TODO())
-	err = c.All(context.TODO(), &posts)
+	defer c.Close(ctx)
+	err = c.All(ctx, &posts)
 	if err != nil {
 		return posts, fmt.Errorf("error in getallposts:%s", err.Error())
 	}
 	return posts, nil
 }
 
-func (p *PostsMongoRepo) AddPost(post Post) (Post, error) {
+func (p *PostsMongoRepo) AddPost(ctx context.Context, post Post) (Post, error) {
 	post.ID = primitive.NewObjectID().Hex()
 	post.Upvotes++
 	newPost, err := bson.Marshal(post)
@@ -48,7 +48,7 @@ func (p *PostsMongoRepo) AddPost(post Post) (Post, error) {
 		return Post{}, fmt.Errorf("error in adpost: %s", err.Error())
 	}
 
-	res, err := p.Posts.InsertOne(context.TODO(), newPost)
+	res, err := p.Posts.InsertOne(ctx, newPost)
 	if err != nil {
 		return Post{}, fmt.Errorf("error in adpost: %s", err.Error())
 	}
@@ -56,11 +56,11 @@ func (p *PostsMongoRepo) AddPost(post Post) (Post, error) {
 	return post, nil
 }
 
-func (p *PostsMongoRepo) UpdatePost(post Post) error {
+func (p *PostsMongoRepo) UpdatePost(ctx context.Context, post Post) error {
 	updatePost := bson.M{
 		"$set": post,
 	}
-	res, err := p.Posts.UpdateByID(context.TODO(), post.ID, updatePost)
+	res, err := p.Posts.UpdateByID(ctx, post.ID, updatePost)
 	if err != nil {
 		return fmt.Errorf("error in updpost: %s", err.Error())
 	}
@@ -70,9 +70,9 @@ func (p *PostsMongoRepo) UpdatePost(post Post) error {
 	return nil
 }
 
-func (p *PostsMongoRepo) GetPostByID(id string) (Post, error) {
+func (p *PostsMongoRepo) GetPostByID(ctx context.Context, id string) (Post, error) {
 	post := Post{}
-	res := p.Posts.FindOne(context.TODO(), bson.M{"_id": id})
+	res := p.Posts.FindOne(ctx, bson.M{"_id": id})
 	if res.Err() != nil {
 		return Post{}, fmt.Errorf("error in getpost: %s", res.Err().Error())
 	}
@@ -83,24 +83,24 @@ func (p *PostsMongoRepo) GetPostByID(id string) (Post, error) {
 	return post, nil
 }
 
-func (p *PostsMongoRepo) GetCategory(category string) ([]Post, error) {
+func (p *PostsMongoRepo) GetCategory(ctx context.Context, category string) ([]Post, error) {
 	posts := make([]Post, 0)
 
-	c, err := p.Posts.Find(context.TODO(), bson.M{"category": category})
+	c, err := p.Posts.Find(ctx, bson.M{"category": category})
 	if err != nil {
 		return posts, fmt.Errorf("error in getallposts:%s", err.Error())
 	}
-	defer c.Close(context.TODO())
+	defer c.Close(ctx)
 
-	err = c.All(context.TODO(), &posts)
+	err = c.All(ctx, &posts)
 	if err != nil {
 		return posts, fmt.Errorf("error in getallposts:%s", err.Error())
 	}
 	return posts, nil
 }
 
-func (p *PostsMongoRepo) DeletePost(postID string) error {
-	res, err := p.Posts.DeleteOne(context.TODO(), bson.M{"_id": postID})
+func (p *PostsMongoRepo) DeletePost(ctx context.Context, postID string) error {
+	res, err := p.Posts.DeleteOne(ctx, bson.M{"_id": postID})
 	if err != nil {
 		return fmt.Errorf("error in deletePost %s", err.Error())
 	}
@@ -110,7 +110,7 @@ func (p *PostsMongoRepo) DeletePost(postID string) error {
 	return nil
 }
 
-func (p *PostsMongoRepo) AddComment(postID string, comment comments.Comment) (Post, error) {
+func (p *PostsMongoRepo) AddComment(ctx context.Context, postID string, comment comments.Comment) (Post, error) {
 	comment.ID = primitive.NewObjectID().Hex()
 	update := bson.M{
 		"$push": bson.M{
@@ -118,7 +118,7 @@ func (p *PostsMongoRepo) AddComment(postID string, comment comments.Comment) (Po
 		},
 	}
 	options := options.FindOneAndUpdate().SetReturnDocument(options.After)
-	res := p.Posts.FindOneAndUpdate(context.TODO(), bson.M{"_id": postID}, update, options)
+	res := p.Posts.FindOneAndUpdate(ctx, bson.M{"_id": postID}, update, options)
 	if res.Err() != nil {
 		return Post{}, fmt.Errorf("error in addcomment: %s", res.Err().Error())
 	}
@@ -131,7 +131,7 @@ func (p *PostsMongoRepo) AddComment(postID string, comment comments.Comment) (Po
 	return post, nil
 }
 
-func (p *PostsMongoRepo) DeleteComment(postID string, commentID string) (Post, error) {
+func (p *PostsMongoRepo) DeleteComment(ctx context.Context, postID string, commentID string) (Post, error) {
 
 	filter := bson.M{
 		"_id": postID,
@@ -140,7 +140,7 @@ func (p *PostsMongoRepo) DeleteComment(postID string, commentID string) (Post, e
 		"$pull": bson.M{"comments": bson.M{"id": commentID}},
 	}
 	options := options.FindOneAndUpdate().SetReturnDocument(options.After)
-	res := p.Posts.FindOneAndUpdate(context.TODO(), filter, update, options)
+	res := p.Posts.FindOneAndUpdate(ctx, filter, update, options)
 	if res.Err() != nil {
 		return Post{}, fmt.Errorf("error in DeleteComment: %s", res.Err().Error())
 	}
@@ -154,16 +154,16 @@ func (p *PostsMongoRepo) DeleteComment(postID string, commentID string) (Post, e
 
 }
 
-func (p *PostsMongoRepo) GetByUserLogin(login string) ([]Post, error) {
+func (p *PostsMongoRepo) GetByUserLogin(ctx context.Context, login string) ([]Post, error) {
 	posts := make([]Post, 0)
 
-	c, err := p.Posts.Find(context.TODO(), bson.M{"author.username": login})
+	c, err := p.Posts.Find(ctx, bson.M{"author.username": login})
 	if err != nil {
 		return posts, fmt.Errorf("error in geByUserLoginPosts:%s", err.Error())
 	}
-	defer c.Close(context.TODO())
+	defer c.Close(ctx)
 
-	err = c.All(context.TODO(), &posts)
+	err = c.All(ctx, &posts)
 	if err != nil {
 		return posts, fmt.Errorf("error in getallposts:%s", err.Error())
 	}
@@ -208,8 +208,8 @@ func (p *PostsMongoRepo) deleteVote(post *Post, index int) {
 	}
 }
 
-func (p *PostsMongoRepo) Vote(postID string, vote vote.Vote) (Post, error) {
-	post, err := p.GetPostByID(postID)
+func (p *PostsMongoRepo) Vote(ctx context.Context, postID string, vote vote.Vote) (Post, error) {
+	post, err := p.GetPostByID(ctx, postID)
 	if err != nil {
 		return Post{}, err
 	}
@@ -222,7 +222,7 @@ func (p *PostsMongoRepo) Vote(postID string, vote vote.Vote) (Post, error) {
 
 	p.updateVoteStats(&post)
 
-	err = p.UpdatePost(post)
+	err = p.UpdatePost(ctx, post)
 	if err != nil {
 		return Post{}, err
 	}
@@ -230,8 +230,8 @@ func (p *PostsMongoRepo) Vote(postID string, vote vote.Vote) (Post, error) {
 	return post, nil
 }
 
-func (p *PostsMongoRepo) UnVote(username string, postID string) (Post, error) {
-	post, err := p.GetPostByID(postID)
+func (p *PostsMongoRepo) UnVote(ctx context.Context, username string, postID string) (Post, error) {
+	post, err := p.GetPostByID(ctx, postID)
 	if err != nil {
 		return Post{}, err
 	}
@@ -249,7 +249,7 @@ func (p *PostsMongoRepo) UnVote(username string, postID string) (Post, error) {
 	p.deleteVote(&post, index)
 	p.updateVoteStats(&post)
 
-	err = p.UpdatePost(post)
+	err = p.UpdatePost(ctx, post)
 	if err != nil {
 		return Post{}, err
 	}

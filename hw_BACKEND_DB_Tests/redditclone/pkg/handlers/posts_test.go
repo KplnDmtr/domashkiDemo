@@ -92,14 +92,14 @@ func TestGetAllPosts(t *testing.T) {
 		posts.Post{ID: "2"},
 	}
 	test.Expected = handlersTestsUtils.ConvertToJSON(t, resultPosts)
-	st.EXPECT().GetAllPosts().Return(resultPosts, nil)
+	st.EXPECT().GetAllPosts(test.Req.Context()).Return(resultPosts, nil)
 	handlersTestsUtils.BodyTesting(test, funcSwitcher)
 
 	// Error
 	test.Req = httptest.NewRequest("GET", "/api/posts/", nil)
 	test.W = httptest.NewRecorder()
 	test.ExpectedStatus = 500
-	st.EXPECT().GetAllPosts().Return(nil, fmt.Errorf("Something"))
+	st.EXPECT().GetAllPosts(test.Req.Context()).Return(nil, fmt.Errorf("Something"))
 	handlersTestsUtils.StatusTesting(test, funcSwitcher)
 }
 
@@ -139,7 +139,6 @@ func TestAddPost(t *testing.T) {
 	handlersTestsUtils.StatusTesting(test, funcSwitch)
 
 	// AddPost error
-	st.EXPECT().AddPost(gomock.Any()).Return(posts.Post{}, fmt.Errorf("Someerror"))
 	requestBody = bytes.NewBuffer([]byte(validJSON))
 	test.Req = httptest.NewRequest("POST", "/api/posts", requestBody)
 	author := author.Author{
@@ -153,6 +152,7 @@ func TestAddPost(t *testing.T) {
 	)
 	test.W = httptest.NewRecorder()
 	test.Req = test.Req.WithContext(ctx)
+	st.EXPECT().AddPost(test.Req.Context(), gomock.Any()).Return(posts.Post{}, fmt.Errorf("Someerror"))
 	handlersTestsUtils.StatusTesting(test, funcSwitch)
 
 	// OK
@@ -177,7 +177,7 @@ func TestAddPost(t *testing.T) {
 	if err != nil {
 		t.Error("unexpected error\n")
 	}
-	st.EXPECT().AddPost(testPost).Return(returnPost, nil)
+
 	requestBody = bytes.NewBuffer(testPostJSON)
 	test.Req = httptest.NewRequest("POST", "/api/posts", requestBody)
 	ctx = test.Req.Context()
@@ -188,6 +188,7 @@ func TestAddPost(t *testing.T) {
 	test.W = httptest.NewRecorder()
 	test.Req = test.Req.WithContext(ctx)
 	test.Expected = returnPostJSON
+	st.EXPECT().AddPost(test.Req.Context(), testPost).Return(returnPost, nil)
 	handlersTestsUtils.BodyTesting(test, funcSwitch)
 }
 
@@ -214,7 +215,7 @@ func TestGetPost(t *testing.T) {
 	test.Req = mux.SetURLVars(test.Req, map[string]string{"POST_ID": "1"})
 	test.W = httptest.NewRecorder()
 	test.ExpectedStatus = 500
-	st.EXPECT().GetPostByID("1").Return(posts.Post{}, fmt.Errorf(mongo.ErrNoDocuments.Error()))
+	st.EXPECT().GetPostByID(test.Req.Context(), "1").Return(posts.Post{}, fmt.Errorf(mongo.ErrNoDocuments.Error()))
 	handlersTestsUtils.StatusTesting(test, funcSwitch)
 
 	// UpdatePost error
@@ -225,9 +226,9 @@ func TestGetPost(t *testing.T) {
 	test.Req = httptest.NewRequest("GET", "/api/post/{POST_ID}", nil)
 	test.Req = mux.SetURLVars(test.Req, map[string]string{"POST_ID": "1"})
 	test.W = httptest.NewRecorder()
-	st.EXPECT().GetPostByID("1").Return(outPost, nil)
+	st.EXPECT().GetPostByID(test.Req.Context(), "1").Return(outPost, nil)
 	outPost.Views += 1
-	st.EXPECT().UpdatePost(outPost).Return(fmt.Errorf("skddlsf"))
+	st.EXPECT().UpdatePost(test.Req.Context(), outPost).Return(fmt.Errorf("skddlsf"))
 	handlersTestsUtils.StatusTesting(test, funcSwitch)
 
 	// OK
@@ -236,9 +237,9 @@ func TestGetPost(t *testing.T) {
 	test.W = httptest.NewRecorder()
 	test.ExpectedStatus = 201
 	outPost.Views -= 1
-	st.EXPECT().GetPostByID("1").Return(outPost, nil).MaxTimes(2)
+	st.EXPECT().GetPostByID(test.Req.Context(), "1").Return(outPost, nil).MaxTimes(2)
 	outPost.Views += 1
-	st.EXPECT().UpdatePost(outPost).Return(nil).MaxTimes(2)
+	st.EXPECT().UpdatePost(test.Req.Context(), outPost).Return(nil).MaxTimes(2)
 	test.Expected = handlersTestsUtils.ConvertToJSON(t, outPost)
 	handlersTestsUtils.BodyTesting(test, funcSwitch)
 	handlersTestsUtils.StatusTesting(test, funcSwitch)
@@ -267,7 +268,7 @@ func TestGetPostByCategory(t *testing.T) {
 	test.Req = mux.SetURLVars(test.Req, map[string]string{"CATEGORY_NAME": "funnyyyy"})
 	test.W = httptest.NewRecorder()
 	test.ExpectedStatus = 500
-	st.EXPECT().GetCategory("funnyyyy").Return(nil, fmt.Errorf("no such category"))
+	st.EXPECT().GetCategory(test.Req.Context(), "funnyyyy").Return(nil, fmt.Errorf("no such category"))
 	handlersTestsUtils.StatusTesting(test, funcSwitch)
 
 	// OK
@@ -280,7 +281,7 @@ func TestGetPostByCategory(t *testing.T) {
 	test.Req = mux.SetURLVars(test.Req, map[string]string{"CATEGORY_NAME": "funny"})
 	test.W = httptest.NewRecorder()
 	test.ExpectedStatus = 200
-	st.EXPECT().GetCategory("funny").Return(posts, nil).MaxTimes(2)
+	st.EXPECT().GetCategory(test.Req.Context(), "funny").Return(posts, nil).MaxTimes(2)
 	test.Expected = handlersTestsUtils.ConvertToJSON(t, posts)
 	handlersTestsUtils.StatusTesting(test, funcSwitch)
 	handlersTestsUtils.BodyTesting(test, funcSwitch)
@@ -348,7 +349,7 @@ func TestAddComment(t *testing.T) {
 	ctx = context.WithValue(ctx, service.ContextKey, &author)
 	test.Req = test.Req.WithContext(ctx)
 	test.W = httptest.NewRecorder()
-	st.EXPECT().AddComment("1", gomock.Any()).Return(posts.Post{}, fmt.Errorf("no such post"))
+	st.EXPECT().AddComment(test.Req.Context(), "1", gomock.Any()).Return(posts.Post{}, fmt.Errorf("no such post"))
 	handlersTestsUtils.StatusTesting(test, funcSwitch)
 
 	// OK
@@ -369,7 +370,7 @@ func TestAddComment(t *testing.T) {
 			},
 		},
 	}
-	st.EXPECT().AddComment("1", gomock.Any()).Return(returnPost, nil).MaxTimes(2)
+	st.EXPECT().AddComment(test.Req.Context(), "1", gomock.Any()).Return(returnPost, nil).MaxTimes(2)
 	test.Expected = handlersTestsUtils.ConvertToJSON(t, returnPost)
 	test.ExpectedStatus = 201
 	handlersTestsUtils.StatusTesting(test, funcSwitch)
@@ -399,7 +400,7 @@ func TestDeleteComment(t *testing.T) {
 	test.Req = mux.SetURLVars(test.Req, map[string]string{"POST_ID": "1", "COMMENT_ID": "2"})
 	test.W = httptest.NewRecorder()
 	test.ExpectedStatus = 500
-	st.EXPECT().DeleteComment("1", "2").Return(posts.Post{}, fmt.Errorf("no such comment/post"))
+	st.EXPECT().DeleteComment(test.Req.Context(), "1", "2").Return(posts.Post{}, fmt.Errorf("no such comment/post"))
 	handlersTestsUtils.StatusTesting(test, funcSwitch)
 
 	// Ok
@@ -408,7 +409,7 @@ func TestDeleteComment(t *testing.T) {
 	test.W = httptest.NewRecorder()
 	test.ExpectedStatus = 200
 	test.Expected = handlersTestsUtils.ConvertToJSON(t, posts.Post{ID: "1"})
-	st.EXPECT().DeleteComment("1", "2").Return(posts.Post{ID: "1"}, nil).MaxTimes(2)
+	st.EXPECT().DeleteComment(test.Req.Context(), "1", "2").Return(posts.Post{ID: "1"}, nil).MaxTimes(2)
 	handlersTestsUtils.StatusTesting(test, funcSwitch)
 	handlersTestsUtils.BodyTesting(test, funcSwitch)
 }
@@ -436,7 +437,7 @@ func TestDeletePost(t *testing.T) {
 	test.Req = mux.SetURLVars(test.Req, map[string]string{"POST_ID": "1"})
 	test.W = httptest.NewRecorder()
 	test.ExpectedStatus = 500
-	st.EXPECT().DeletePost("1").Return(fmt.Errorf("no such comment/post"))
+	st.EXPECT().DeletePost(test.Req.Context(), "1").Return(fmt.Errorf("no such comment/post"))
 	handlersTestsUtils.StatusTesting(test, funcSwitch)
 
 	// Ok
@@ -445,7 +446,7 @@ func TestDeletePost(t *testing.T) {
 	test.W = httptest.NewRecorder()
 	test.ExpectedStatus = 200
 	test.Expected = handlersTestsUtils.ConvertToJSON(t, posts.Post{ID: "1"})
-	st.EXPECT().DeletePost("1").Return(nil).MaxTimes(2)
+	st.EXPECT().DeletePost(test.Req.Context(), "1").Return(nil).MaxTimes(2)
 	handlersTestsUtils.StatusTesting(test, funcSwitch)
 }
 
@@ -490,7 +491,7 @@ func TestVote(t *testing.T) {
 		User: "12",
 		Vote: -1,
 	}
-	st.EXPECT().Vote("1", testVote).Return(posts.Post{}, fmt.Errorf("no such post"))
+	st.EXPECT().Vote(test.Req.Context(), "1", testVote).Return(posts.Post{}, fmt.Errorf("no such post"))
 	handlersTestsUtils.StatusTesting(test, funcSwitch)
 
 	// OK
@@ -501,7 +502,7 @@ func TestVote(t *testing.T) {
 	test.Req = test.Req.WithContext(ctx)
 	test.W = httptest.NewRecorder()
 	test.ExpectedStatus = 200
-	st.EXPECT().Vote("1", testVote).Return(posts.Post{ID: "1", Votes: []vote.Vote{testVote}}, nil).MaxTimes(2)
+	st.EXPECT().Vote(test.Req.Context(), "1", testVote).Return(posts.Post{ID: "1", Votes: []vote.Vote{testVote}}, nil).MaxTimes(2)
 	test.Expected = handlersTestsUtils.ConvertToJSON(t, posts.Post{ID: "1", Votes: []vote.Vote{testVote}})
 	handlersTestsUtils.StatusTesting(test, funcSwitch)
 	handlersTestsUtils.BodyTesting(test, funcSwitch)
@@ -548,7 +549,7 @@ func TestUnVote(t *testing.T) {
 		User: "12",
 		Vote: -1,
 	}
-	st.EXPECT().UnVote(testVote.User, "1").Return(posts.Post{}, fmt.Errorf("no such post"))
+	st.EXPECT().UnVote(test.Req.Context(), testVote.User, "1").Return(posts.Post{}, fmt.Errorf("no such post"))
 	handlersTestsUtils.StatusTesting(test, funcSwitch)
 
 	// OK
@@ -559,7 +560,7 @@ func TestUnVote(t *testing.T) {
 	test.Req = test.Req.WithContext(ctx)
 	test.W = httptest.NewRecorder()
 	test.ExpectedStatus = 200
-	st.EXPECT().UnVote(testVote.User, "1").Return(posts.Post{ID: "1"}, nil).MaxTimes(2)
+	st.EXPECT().UnVote(test.Req.Context(), testVote.User, "1").Return(posts.Post{ID: "1"}, nil).MaxTimes(2)
 	test.Expected = handlersTestsUtils.ConvertToJSON(t, posts.Post{ID: "1"})
 	handlersTestsUtils.StatusTesting(test, funcSwitch)
 	handlersTestsUtils.BodyTesting(test, funcSwitch)

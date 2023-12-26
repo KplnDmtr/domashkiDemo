@@ -1,5 +1,7 @@
 package user
 
+import "context"
+
 type User struct {
 	Username string
 	Login    string
@@ -9,7 +11,7 @@ type User struct {
 
 //go:generate mockgen -source user.go -destination user_mock.go -package user UserRepo
 type UserRepo interface {
-	AddNewUser(user User) (string, error)
-	Authenticate(user User) (string, error)
-	IsUser(username, id string) (bool, error)
+	AddNewUser(ctx context.Context, user User) (string, error)
+	Authenticate(ctx context.Context, user User) (string, error)
+	IsUser(ctx context.Context, username string, id string) (bool, error)
 }

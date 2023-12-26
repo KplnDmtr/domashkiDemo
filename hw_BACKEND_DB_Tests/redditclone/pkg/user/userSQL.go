@@ -1,6 +1,7 @@
 package user
 
 import (
+	"context"
 	"database/sql"
 	"strconv"
 )
@@ -15,8 +16,8 @@ func NewUserSQLRepo(db *sql.DB) *UserSQLRepo {
 	}
 }
 
-func (m *UserSQLRepo) AddNewUser(user User) (string, error) {
-	result, err := m.DB.Exec(
+func (m *UserSQLRepo) AddNewUser(ctx context.Context, user User) (string, error) {
+	result, err := m.DB.ExecContext(ctx,
 		"INSERT INTO users (`username`, `login`, `password`) VALUES (?, ?, ?)",
 		user.Username,
 		user.Login,
@@ -32,8 +33,8 @@ func (m *UserSQLRepo) AddNewUser(user User) (string, error) {
 	return strconv.Itoa(int(lastID)), nil
 }
 
-func (m *UserSQLRepo) Authenticate(user User) (string, error) {
-	row := m.DB.QueryRow("SELECT id FROM users WHERE username = ? AND password = ? AND login = ?",
+func (m *UserSQLRepo) Authenticate(ctx context.Context, user User) (string, error) {
+	row := m.DB.QueryRowContext(ctx, "SELECT id FROM users WHERE username = ? AND password = ? AND login = ?",
 		user.Username,
 		user.Password,
 		user.Login,
@@ -47,8 +48,8 @@ func (m *UserSQLRepo) Authenticate(user User) (string, error) {
 
 }
 
-func (m *UserSQLRepo) IsUser(username, id string) (bool, error) {
-	row := m.DB.QueryRow("SELECT login FROM users WHERE username = ? AND id = ?",
+func (m *UserSQLRepo) IsUser(ctx context.Context, username string, id string) (bool, error) {
+	row := m.DB.QueryRowContext(ctx, "SELECT login FROM users WHERE username = ? AND id = ?",
 		username,
 		id,
 	)

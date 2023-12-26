@@ -5,11 +5,12 @@
 package posts
 
 import (
+	context "context"
+	comments "redditclone/pkg/comments"
+	vote "redditclone/pkg/vote"
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
-	comments "redditclone/pkg/comments"
-	vote "redditclone/pkg/vote"
 )
 
 // MockPostsRepository is a mock of PostsRepository interface.
@@ -36,164 +37,164 @@ func (m *MockPostsRepository) EXPECT() *MockPostsRepositoryMockRecorder {
 }
 
 // AddComment mocks base method.
-func (m *MockPostsRepository) AddComment(arg0 string, arg1 comments.Comment) (Post, error) {
+func (m *MockPostsRepository) AddComment(ctx context.Context, postID string, comment comments.Comment) (Post, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "AddComment", arg0, arg1)
+	ret := m.ctrl.Call(m, "AddComment", ctx, postID, comment)
 	ret0, _ := ret[0].(Post)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // AddComment indicates an expected call of AddComment.
-func (mr *MockPostsRepositoryMockRecorder) AddComment(arg0, arg1 interface{}) *gomock.Call {
+func (mr *MockPostsRepositoryMockRecorder) AddComment(ctx, postID, comment interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddComment", reflect.TypeOf((*MockPostsRepository)(nil).AddComment), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddComment", reflect.TypeOf((*MockPostsRepository)(nil).AddComment), ctx, postID, comment)
 }
 
 // AddPost mocks base method.
-func (m *MockPostsRepository) AddPost(arg0 Post) (Post, error) {
+func (m *MockPostsRepository) AddPost(ctx context.Context, post Post) (Post, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "AddPost", arg0)
+	ret := m.ctrl.Call(m, "AddPost", ctx, post)
 	ret0, _ := ret[0].(Post)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // AddPost indicates an expected call of AddPost.
-func (mr *MockPostsRepositoryMockRecorder) AddPost(arg0 interface{}) *gomock.Call {
+func (mr *MockPostsRepositoryMockRecorder) AddPost(ctx, post interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddPost", reflect.TypeOf((*MockPostsRepository)(nil).AddPost), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddPost", reflect.TypeOf((*MockPostsRepository)(nil).AddPost), ctx, post)
 }
 
 // DeleteComment mocks base method.
-func (m *MockPostsRepository) DeleteComment(arg0, arg1 string) (Post, error) {
+func (m *MockPostsRepository) DeleteComment(ctx context.Context, postID, commentID string) (Post, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "DeleteComment", arg0, arg1)
+	ret := m.ctrl.Call(m, "DeleteComment", ctx, postID, commentID)
 	ret0, _ := ret[0].(Post)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // DeleteComment indicates an expected call of DeleteComment.
-func (mr *MockPostsRepositoryMockRecorder) DeleteComment(arg0, arg1 interface{}) *gomock.Call {
+func (mr *MockPostsRepositoryMockRecorder) DeleteComment(ctx, postID, commentID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteComment", reflect.TypeOf((*MockPostsRepository)(nil).DeleteComment), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteComment", reflect.TypeOf((*MockPostsRepository)(nil).DeleteComment), ctx, postID, commentID)
 }
 
 // DeletePost mocks base method.
-func (m *MockPostsRepository) DeletePost(arg0 string) error {
+func (m *MockPostsRepository) DeletePost(ctx context.Context, postID string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "DeletePost", arg0)
+	ret := m.ctrl.Call(m, "DeletePost", ctx, postID)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // DeletePost indicates an expected call of DeletePost.
-func (mr *MockPostsRepositoryMockRecorder) DeletePost(arg0 interface{}) *gomock.Call {
+func (mr *MockPostsRepositoryMockRecorder) DeletePost(ctx, postID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeletePost", reflect.TypeOf((*MockPostsRepository)(nil).DeletePost), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeletePost", reflect.TypeOf((*MockPostsRepository)(nil).DeletePost), ctx, postID)
 }
 
 // GetAllPosts mocks base method.
-func (m *MockPostsRepository) GetAllPosts() ([]Post, error) {
+func (m *MockPostsRepository) GetAllPosts(ctx context.Context) ([]Post, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetAllPosts")
+	ret := m.ctrl.Call(m, "GetAllPosts", ctx)
 	ret0, _ := ret[0].([]Post)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetAllPosts indicates an expected call of GetAllPosts.
-func (mr *MockPostsRepositoryMockRecorder) GetAllPosts() *gomock.Call {
+func (mr *MockPostsRepositoryMockRecorder) GetAllPosts(ctx interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAllPosts", reflect.TypeOf((*MockPostsRepository)(nil).GetAllPosts))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAllPosts", reflect.TypeOf((*MockPostsRepository)(nil).GetAllPosts), ctx)
 }
 
 // GetByUserLogin mocks base method.
-func (m *MockPostsRepository) GetByUserLogin(arg0 string) ([]Post, error) {
+func (m *MockPostsRepository) GetByUserLogin(ctx context.Context, login string) ([]Post, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetByUserLogin", arg0)
+	ret := m.ctrl.Call(m, "GetByUserLogin", ctx, login)
 	ret0, _ := ret[0].([]Post)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetByUserLogin indicates an expected call of GetByUserLogin.
-func (mr *MockPostsRepositoryMockRecorder) GetByUserLogin(arg0 interface{}) *gomock.Call {
+func (mr *MockPostsRepositoryMockRecorder) GetByUserLogin(ctx, login interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByUserLogin", reflect.TypeOf((*MockPostsRepository)(nil).GetByUserLogin), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByUserLogin", reflect.TypeOf((*MockPostsRepository)(nil).GetByUserLogin), ctx, login)
 }
 
 // GetCategory mocks base method.
-func (m *MockPostsRepository) GetCategory(arg0 string) ([]Post, error) {
+func (m *MockPostsRepository) GetCategory(ctx context.Context, category string) ([]Post, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetCategory", arg0)
+	ret := m.ctrl.Call(m, "GetCategory", ctx, category)
 	ret0, _ := ret[0].([]Post)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetCategory indicates an expected call of GetCategory.
-func (mr *MockPostsRepositoryMockRecorder) GetCategory(arg0 interface{}) *gomock.Call {
+func (mr *MockPostsRepositoryMockRecorder) GetCategory(ctx, category interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCategory", reflect.TypeOf((*MockPostsRepository)(nil).GetCategory), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCategory", reflect.TypeOf((*MockPostsRepository)(nil).GetCategory), ctx, category)
 }
 
 // GetPostByID mocks base method.
-func (m *MockPostsRepository) GetPostByID(arg0 string) (Post, error) {
+func (m *MockPostsRepository) GetPostByID(ctx context.Context, id string) (Post, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetPostByID", arg0)
+	ret := m.ctrl.Call(m, "GetPostByID", ctx, id)
 	ret0, _ := ret[0].(Post)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetPostByID indicates an expected call of GetPostByID.
-func (mr *MockPostsRepositoryMockRecorder) GetPostByID(arg0 interface{}) *gomock.Call {
+func (mr *MockPostsRepositoryMockRecorder) GetPostByID(ctx, id interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPostByID", reflect.TypeOf((*MockPostsRepository)(nil).GetPostByID), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPostByID", reflect.TypeOf((*MockPostsRepository)(nil).GetPostByID), ctx, id)
 }
 
 // UnVote mocks base method.
-func (m *MockPostsRepository) UnVote(arg0, arg1 string) (Post, error) {
+func (m *MockPostsRepository) UnVote(ctx context.Context, username, postID string) (Post, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UnVote", arg0, arg1)
+	ret := m.ctrl.Call(m, "UnVote", ctx, username, postID)
 	ret0, _ := ret[0].(Post)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // UnVote indicates an expected call of UnVote.
-func (mr *MockPostsRepositoryMockRecorder) UnVote(arg0, arg1 interface{}) *gomock.Call {
+func (mr *MockPostsRepositoryMockRecorder) UnVote(ctx, username, postID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UnVote", reflect.TypeOf((*MockPostsRepository)(nil).UnVote), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UnVote", reflect.TypeOf((*MockPostsRepository)(nil).UnVote), ctx, username, postID)
 }
 
 // UpdatePost mocks base method.
-func (m *MockPostsRepository) UpdatePost(arg0 Post) error {
+func (m *MockPostsRepository) UpdatePost(ctx context.Context, post Post) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UpdatePost", arg0)
+	ret := m.ctrl.Call(m, "UpdatePost", ctx, post)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // UpdatePost indicates an expected call of UpdatePost.
-func (mr *MockPostsRepositoryMockRecorder) UpdatePost(arg0 interface{}) *gomock.Call {
+func (mr *MockPostsRepositoryMockRecorder) UpdatePost(ctx, post interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdatePost", reflect.TypeOf((*MockPostsRepository)(nil).UpdatePost), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdatePost", reflect.TypeOf((*MockPostsRepository)(nil).UpdatePost), ctx, post)
 }
 
 // Vote mocks base method.
-func (m *MockPostsRepository) Vote(arg0 string, arg1 vote.Vote) (Post, error) {
+func (m *MockPostsRepository) Vote(ctx context.Context, postID string, vote vote.Vote) (Post, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Vote", arg0, arg1)
+	ret := m.ctrl.Call(m, "Vote", ctx, postID, vote)
 	ret0, _ := ret[0].(Post)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // Vote indicates an expected call of Vote.
-func (mr *MockPostsRepositoryMockRecorder) Vote(arg0, arg1 interface{}) *gomock.Call {
+func (mr *MockPostsRepositoryMockRecorder) Vote(ctx, postID, vote interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Vote", reflect.TypeOf((*MockPostsRepository)(nil).Vote), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Vote", reflect.TypeOf((*MockPostsRepository)(nil).Vote), ctx, postID, vote)
 }

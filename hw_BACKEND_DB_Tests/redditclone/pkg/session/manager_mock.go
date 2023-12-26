@@ -5,6 +5,7 @@
 package session
 
 import (
+	context "context"
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
@@ -34,45 +35,45 @@ func (m *MockSessionManager) EXPECT() *MockSessionManagerMockRecorder {
 }
 
 // AddNewSess mocks base method.
-func (m *MockSessionManager) AddNewSess(id string, exp, iat int64) error {
+func (m *MockSessionManager) AddNewSess(ctx context.Context, id string, exp, iat int64) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "AddNewSess", id, exp, iat)
+	ret := m.ctrl.Call(m, "AddNewSess", ctx, id, exp, iat)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // AddNewSess indicates an expected call of AddNewSess.
-func (mr *MockSessionManagerMockRecorder) AddNewSess(id, exp, iat interface{}) *gomock.Call {
+func (mr *MockSessionManagerMockRecorder) AddNewSess(ctx, id, exp, iat interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddNewSess", reflect.TypeOf((*MockSessionManager)(nil).AddNewSess), id, exp, iat)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddNewSess", reflect.TypeOf((*MockSessionManager)(nil).AddNewSess), ctx, id, exp, iat)
 }
 
 // DeleteSess mocks base method.
-func (m *MockSessionManager) DeleteSess(userID string, iat int64) error {
+func (m *MockSessionManager) DeleteSess(ctx context.Context, userID string, iat int64) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "DeleteSess", userID, iat)
+	ret := m.ctrl.Call(m, "DeleteSess", ctx, userID, iat)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // DeleteSess indicates an expected call of DeleteSess.
-func (mr *MockSessionManagerMockRecorder) DeleteSess(userID, iat interface{}) *gomock.Call {
+func (mr *MockSessionManagerMockRecorder) DeleteSess(ctx, userID, iat interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteSess", reflect.TypeOf((*MockSessionManager)(nil).DeleteSess), userID, iat)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteSess", reflect.TypeOf((*MockSessionManager)(nil).DeleteSess), ctx, userID, iat)
 }
 
 // GetExp mocks base method.
-func (m *MockSessionManager) GetExp(id string, iat int64) int64 {
+func (m *MockSessionManager) GetExp(ctx context.Context, id string, iat int64) int64 {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetExp", id, iat)
+	ret := m.ctrl.Call(m, "GetExp", ctx, id, iat)
 	ret0, _ := ret[0].(int64)
 	return ret0
 }
 
 // GetExp indicates an expected call of GetExp.
-func (mr *MockSessionManagerMockRecorder) GetExp(id, iat interface{}) *gomock.Call {
+func (mr *MockSessionManagerMockRecorder) GetExp(ctx, id, iat interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetExp", reflect.TypeOf((*MockSessionManager)(nil).GetExp), id, iat)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetExp", reflect.TypeOf((*MockSessionManager)(nil).GetExp), ctx, id, iat)
 }
 
 // GetKey mocks base method.

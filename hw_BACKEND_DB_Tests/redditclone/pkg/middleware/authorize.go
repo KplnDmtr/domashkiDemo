@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 
@@ -25,7 +26,7 @@ func Authorize(contextKey key.Key, logger logger.Logger, pRepo posts.PostsReposi
 		postID := vars["POST_ID"]
 		commentID := vars["COMMENT_ID"]
 		if commentID != "" && postID != "" {
-			err := CheckComment(postID, commentID, *author, pRepo)
+			err := CheckComment(r.Context(), postID, commentID, *author, pRepo)
 			if err != nil {
 				logger.Log("Error", err.Error())
 				response.ServerResponseWriter(w, 400, err.Error())
@@ -35,7 +36,7 @@ func Authorize(contextKey key.Key, logger logger.Logger, pRepo posts.PostsReposi
 			return
 		}
 		if postID != "" {
-			err := CheckPost(postID, *author, pRepo)
+			err := CheckPost(r.Context(), postID, *author, pRepo)
 			if err != nil {
 				logger.Log("Error", err.Error())
 				response.ServerResponseWriter(w, 400, err.Error())
@@ -48,8 +49,8 @@ func Authorize(contextKey key.Key, logger logger.Logger, pRepo posts.PostsReposi
 	})
 }
 
-func CheckComment(postID string, commentID string, author author.Author, pRepo posts.PostsRepository) error {
-	post, err := pRepo.GetPostByID(postID)
+func CheckComment(ctx context.Context, postID string, commentID string, author author.Author, pRepo posts.PostsRepository) error {
+	post, err := pRepo.GetPostByID(ctx, postID)
 	if err != nil {
 		return err
 	}
@@ -61,8 +62,8 @@ func CheckComment(postID string, commentID string, author author.Author, pRepo p
 	return fmt.Errorf("comment not found")
 }
 
-func CheckPost(postID string, author author.Author, pRepo posts.PostsRepository) error {
-	post, err := pRepo.GetPostByID(postID)
+func CheckPost(ctx context.Context, postID string, author author.Author, pRepo posts.PostsRepository) error {
+	post, err := pRepo.GetPostByID(ctx, postID)
 	if err != nil {
 		return err
 	}
