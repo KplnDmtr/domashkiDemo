@@ -58,5 +58,6 @@ func (m *UserSQLRepo) IsUser(ctx context.Context, username string, id string) (b
 	if err != nil {
 		return false, err
 	}
+	//
 	return true, nil
 }
