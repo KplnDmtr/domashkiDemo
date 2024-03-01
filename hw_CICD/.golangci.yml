@@ -1,0 +1,44 @@
+linters:
+  enable:
+    - cyclop
+    - bodyclose
+    - dupl
+    - funlen
+    - gofmt
+    - stylecheck
+    - contextcheck
+    - containedctx
+    - errorlint
+    - decorder
+    - gocritic
+    - revive
+    - gochecknoglobals
+    - grouper
+    - prealloc
+    - predeclared
+    - reassign
+    - wastedassign
+    - unparam
+  fast: false
+
+linters-settings:
+  errcheck:
+    check-blank: true
+    check-type-assertions: true
+  govet:
+    check-shadowing: true
+  cyclop:
+     max-complexity: 10
+
+
+issues:
+  max-issues-per-linter: 0
+  max-same-issues: 0
+  exclude:
+    - "should have comment"
+    - "always receives"
+    - "parameter .* is always"
+    - "comment on exported .* should be of the form"
+
+output:
+  format: colored-line-number

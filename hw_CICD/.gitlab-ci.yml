@@ -1,0 +1,70 @@
+stages:
+- build
+- test
+- deploy
+
+build_job:
+    stage: build
+    image: golang:1.21
+    script:
+        - go build -o bin/noteapp ./note_app
+
+lint_job:
+    stage: build
+    image: golangci/golangci-lint:v1.55
+    script: golangci-lint -c .golangci.yml run ./note_app
+
+test_job:
+    image: golang:1.21
+    stage: test
+    script: go test ./note_app -coverprofile=coverPosts.out && go tool cover -html=coverPosts.out -o coverPosts.html
+
+.prepare_ssh:
+  before_script:
+    ##
+  ## Install ssh-agent if not already installed, it is required by Docker.
+  ## (change apt-get to yum if you use an RPM-based image)
+  ##
+  - 'command -v ssh-agent >/dev/null || ( apt-get update -y && apt-get install openssh-client -y )'
+
+  ##
+  ## Run ssh-agent (inside the build environment)
+  ##
+  - eval $(ssh-agent -s)
+
+  ##
+  ## Give the right permissions, otherwise ssh-add will refuse to add files
+  ## Add the SSH key stored in SSH_PRIVATE_KEY file type CI/CD variable to the agent store
+  ##
+  - chmod 400 "$SSH_PRIVATE_KEY"
+  - ssh-add "$SSH_PRIVATE_KEY"
+
+  #
+  ## Create the SSH directory and give it the right permissions
+  ##
+  - mkdir -p ~/.ssh
+  - chmod 700 ~/.ssh
+  - ssh-keyscan -t rsa $REMOTE_SERVER_IP >> ~/.ssh/known_hosts
+  - echo $DOCKER_TOKEN | docker login --username kbv111 --password-stdin
+
+deploy_job:
+  extends: .prepare_ssh
+  image: docker
+  services:
+    - docker:dind
+  stage: deploy
+  script:
+    - ssh centos@$REMOTE_SERVER_IP 'echo hi!'
+    - docker build -t kbv111/hwcicd:latest .
+    - docker push kbv111/hwcicd:latest
+    - ssh centos@$REMOTE_SERVER_IP 'sudo docker stop noteapp || echo 1'
+    - ssh centos@$REMOTE_SERVER_IP 'sudo docker rm noteapp || echo 1'
+    - ssh centos@$REMOTE_SERVER_IP 'sudo docker pull kbv111/hwcicd:latest'
+    - ssh centos@$REMOTE_SERVER_IP 'echo hi!2'
+    - ssh centos@$REMOTE_SERVER_IP 'sudo docker run --rm -d -p 8080:8080 --name=noteapp kbv111/hwcicd:latest'
+  environment:
+    name: production
+    url: http://$REMOTE_SERVER_IP
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+
